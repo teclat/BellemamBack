@@ -1,0 +1,22 @@
+{
+  "name": "backend-belle-mam",
+  "version": "1.0.0",
+  "main": "server.js",
+  "repository": "https://github.com/teclat/belle-mam-back.git",
+  "author": "teclat",
+  "license": "xx",
+  "private": true,
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
+    "pg": "^8.3.0",
+    "sequelize": "^6.3.4"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.4"
+  }
+}
