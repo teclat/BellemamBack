@@ -33,7 +33,15 @@ class User extends Model {
 					allowNull: true,
 				},
 				events: {
-					type: Datatypes.ARRAY(Datatypes.STRING),
+					type: Datatypes.ARRAY(
+						Datatypes.ENUM(
+							'revelation',
+							'diaper',
+							'baby',
+							'baptize',
+							'birth_day',
+						),
+					),
 					allowNull: true,
 				},
 			},
