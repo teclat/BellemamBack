@@ -3,6 +3,8 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 require('dotenv').config();
 const userRoutes = require('./routes/userRoutes');
+const eventRoutes = require('./routes/eventRoutes');
+const productRoutes = require('./routes/productRoutes');
 
 const app = express();
 
@@ -10,6 +12,8 @@ app.use(bodyParser.json());
 app.use(cors());
 
 app.use('/api/users', userRoutes);
+app.use('/api/events', eventRoutes);
+app.use('/api/products', productRoutes);
 
 //error middleware
 app.use((error, req, res, next) => {
