@@ -11,20 +11,20 @@ exports.create = async (req, res, next) => {
 		password,
 		role,
 		phone,
-		city = null,
-		state = null,
-		events = null,
+		city = '',
+		state = '',
+		events = [''],
 	} = req.body;
 
 	try {
-		const checkUser = await User.findOne({ email: email });
+		const checkUser = await User.findOne({ where: { email: email } });
 		if (checkUser) {
 			const error = new HttpError('User already exists', 422);
 			return next(error);
 		}
 	} catch (err) {
 		console.error(err);
-		const error = new HttpError('Connection error, user check DB');
+		const error = new HttpError('Connection error, user check DB', 500);
 		return next(error);
 	}
 
@@ -66,7 +66,7 @@ exports.login = async (req, res, next) => {
 
 	let user;
 	try {
-		user = await User.findOne({ email: email });
+		user = await User.findOne({ where: { email: email } });
 		if (!user) {
 			const error = new HttpError('Login failed, invalid credentials', 403);
 			return next(error);

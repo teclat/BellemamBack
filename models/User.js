@@ -1,40 +1,41 @@
-const { Model, Datatypes } = require('sequelize');
+const { Model, DataTypes } = require('sequelize');
+const { v4: uuid } = require('uuid');
 
 class User extends Model {
 	static init(sequelize) {
 		super.init(
 			{
 				name: {
-					type: Datatypes.STRING,
+					type: DataTypes.STRING,
 					allowNull: false,
 				},
 				email: {
-					type: Datatypes.STRING,
+					type: DataTypes.STRING,
 					allowNull: false,
 				},
 				password: {
-					type: Datatypes.STRING,
+					type: DataTypes.STRING,
 					allowNull: false,
 				},
 				role: {
-					type: Datatypes.ENUM('parent', 'guest', 'admin'),
+					type: DataTypes.ENUM('parent', 'guest', 'admin'),
 					allowNull: false,
 				},
 				phone: {
-					type: Datatypes.STRING,
+					type: DataTypes.STRING,
 					allowNull: false,
 				},
 				city: {
-					type: Datatypes.STRING,
+					type: DataTypes.STRING,
 					allowNull: true,
 				},
 				state: {
-					type: Datatypes.STRING,
+					type: DataTypes.STRING,
 					allowNull: true,
 				},
 				events: {
-					type: Datatypes.ARRAY(
-						Datatypes.ENUM(
+					type: DataTypes.ARRAY(
+						DataTypes.ENUM(
 							'revelation',
 							'diaper',
 							'baby',
@@ -49,6 +50,10 @@ class User extends Model {
 				sequelize,
 			},
 		);
+
+		super.beforeCreate((user, _) => {
+			return (user.id = uuid());
+		});
 	}
 
 	//também tem produtos? ou os produtos/presentes são relacionados ao evento?

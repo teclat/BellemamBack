@@ -2,20 +2,42 @@ const HttpError = require('../models/http-error');
 const User = require('../models/User');
 const Event = require('../models/Event');
 
+exports.index = async (req, res, next) => {
+	const { userId } = req.params;
+
+	try {
+		const events = await Event.findAll({ where: { user_id: userId } });
+		if (!events) {
+			const error = new HttpError(
+				'Could not find any event for the provided user',
+				404,
+			);
+			return next(error);
+		}
+		return res.status(200).json(events);
+	} catch (err) {
+		console.error(err);
+		const error = new HttpError('Server error!', 500);
+		return next(error);
+	}
+};
+
 exports.create = async (req, res, next) => {
 	const {
 		date,
+		type,
 		hour,
 		address,
-		baby_name = null,
+		phone,
+		baby_name = '',
 		baby_birthday,
-		baby_image_url = null,
-		mom_image_url = null,
-		dad_image_url = null,
+		baby_image_url = '',
+		mom_image_url = '',
+		dad_image_url = '',
+		background_image_url = '',
 		theme,
-		obs1 = null,
-		obs2 = null,
-		products = null,
+		history_text = '',
+		invite_text = '',
 	} = req.body;
 	const { userId } = req.params;
 
@@ -39,18 +61,21 @@ exports.create = async (req, res, next) => {
 
 	try {
 		const event = await Event.create({
+			user_id: userId,
+			type,
 			date,
 			hour,
+			phone,
 			address,
 			baby_name,
 			baby_birthday,
 			baby_image_url,
 			mom_image_url,
 			dad_image_url,
+			background_image_url,
 			theme,
-			obs1,
-			obs2,
-			porducts,
+			history_text,
+			invite_text,
 		});
 
 		return res.status(200).json(event);
@@ -63,17 +88,19 @@ exports.create = async (req, res, next) => {
 
 exports.edit = async (req, res, next) => {
 	const {
+		type,
 		date,
 		hour,
 		address,
-		baby_name = null,
+		baby_name = '',
 		baby_birthday,
-		baby_image_url = null,
-		mom_image_url = null,
-		dad_image_url = null,
+		baby_image_url = '',
+		mom_image_url = '',
+		dad_image_url = '',
+		background_image_url = '',
 		theme,
-		obs1 = null,
-		obs2 = null,
+		history_text = '',
+		invite_text = '',
 	} = req.body;
 
 	const { eventId } = req.params;
@@ -94,6 +121,7 @@ exports.edit = async (req, res, next) => {
 		return next(error);
 	}
 
+	event.type = type;
 	event.date = date;
 	event.hour = hour;
 	event.address = address;
@@ -102,9 +130,10 @@ exports.edit = async (req, res, next) => {
 	event.baby_image_url = baby_image_url;
 	event.mom_image_url = mom_image_url;
 	event.dad_image_url = dad_image_url;
+	event.background_image_url = background_image_url;
 	event.theme = theme;
-	event.obs1 = obs1;
-	event.obs2 = obs2;
+	event.history_text = history_text;
+	event.invite_text = invite_text;
 
 	try {
 		await event.save();
