@@ -63,7 +63,7 @@ class Event extends Model {
 					allowNull: true,
 				},
 				products: {
-					type: Datatypes.ARRAY,
+					type: Datatypes.ARRAY(Datatypes.STRING),
 					allowNull: true,
 				},
 			},
