@@ -4,9 +4,9 @@ module.exports = {
 	up: async (queryInterface, Sequelize) => {
 		await queryInterface.createTable('products', {
 			id: {
-				type: Sequelize.UUID,
-				defaultValue: Sequelize.UUIDV4,
+				type: Sequelize.INTEGER,
 				primaryKey: true,
+				autoIncrement: true,
 				allowNull: false,
 			},
 			name: {
@@ -25,10 +25,6 @@ module.exports = {
 				type: Sequelize.STRING,
 				allowNull: true,
 			},
-			quantity: {
-				type: Sequelize.INTEGER,
-				allowNull: false,
-			},
 			available: {
 				type: Sequelize.BOOLEAN,
 				allowNull: false,
@@ -45,6 +41,6 @@ module.exports = {
 	},
 
 	down: async (queryInterface, Sequelize) => {
-		await queryInterface.dropTable('events');
+		await queryInterface.dropTable('products');
 	},
 };
