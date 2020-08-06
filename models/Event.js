@@ -1,11 +1,11 @@
-const { Model, Datatypes } = require('sequelize');
+const { Model, DataTypes } = require('sequelize');
 
 class Event extends Model {
 	static init(sequelize) {
 		super.init(
 			{
 				type: {
-					type: Datatypes.ENUM(
+					type: DataTypes.ENUM(
 						'revelation',
 						'diaper',
 						'baby',
@@ -15,55 +15,55 @@ class Event extends Model {
 					allowNull: false,
 				},
 				date: {
-					type: Datatypes.DATE,
+					type: DataTypes.DATE,
 					allowNull: false,
 				},
 				hour: {
-					type: Datatypes.TIME,
+					type: DataTypes.TIME,
 					allowNull: false,
 				},
 				address: {
-					type: Datatypes.STRING,
+					type: DataTypes.STRING,
+					allowNull: false,
+				},
+				phone: {
+					type: DataTypes.STRING,
 					allowNull: false,
 				},
 				baby_name: {
-					type: Datatypes.STRING,
+					type: DataTypes.STRING,
 					allowNull: true,
 				},
 				baby_birthday: {
-					type: Datatypes.DATE,
+					type: DataTypes.DATE,
 					allowNull: false,
 				},
 				baby_image_url: {
-					type: Datatypes.STRING,
+					type: DataTypes.STRING,
 					allowNull: true,
 				},
 				mom_image_url: {
-					type: Datatypes.STRING,
+					type: DataTypes.STRING,
 					allowNull: true,
 				},
 				dad_image_url: {
-					type: Datatypes.STRING,
+					type: DataTypes.STRING,
 					allowNull: true,
 				},
 				background_image_url: {
-					type: Datatypes.STRING,
+					type: DataTypes.STRING,
 					allowNull: true,
 				},
 				theme: {
-					type: Datatypes.ENUM('theme1', 'theme2'),
+					type: DataTypes.ENUM('theme1', 'theme2'),
 					allowNull: false,
 				},
-				obs1: {
-					type: Datatypes.STRING,
+				history_text: {
+					type: DataTypes.STRING,
 					allowNull: true,
 				},
-				obs2: {
-					type: Datatypes.STRING,
-					allowNull: true,
-				},
-				products: {
-					type: Datatypes.ARRAY(Datatypes.STRING),
+				invite_text: {
+					type: DataTypes.STRING,
 					allowNull: true,
 				},
 			},
@@ -78,7 +78,7 @@ class Event extends Model {
 			foreignKey: 'user_id',
 			as: 'user',
 		});
-		this.hasMany(models.Products, {
+		this.belongsToMany(models.Product, {
 			foreignKey: 'product_id',
 			through: 'event_products',
 			as: 'products',
