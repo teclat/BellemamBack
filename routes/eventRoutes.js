@@ -4,7 +4,7 @@ const router = Router();
 const eventController = require('../controllers/EventControllers');
 
 router.post('/:userId/create', eventController.create);
-
-router.patch('/edit/:eventId', eventController.edit);
+router.get('/:userId', eventController.index);
+router.patch('/:eventId/edit', eventController.edit);
 
 module.exports = router;

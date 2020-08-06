@@ -6,6 +6,8 @@ const userRoutes = require('./routes/userRoutes');
 const eventRoutes = require('./routes/eventRoutes');
 const productRoutes = require('./routes/productRoutes');
 
+require('./database');
+
 const app = express();
 
 app.use(bodyParser.json());

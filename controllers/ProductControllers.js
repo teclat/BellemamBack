@@ -20,7 +20,7 @@ exports.indexProductById = async (req, res, next) => {
 	const { productId } = req.params;
 
 	try {
-		const product = await Product.findOne({ id: productId });
+		const product = await Product.findOne({ where: { id: productId } });
 		if (!product) {
 			const error = new HttpError(
 				'Could not find any product with the given id',
@@ -28,6 +28,7 @@ exports.indexProductById = async (req, res, next) => {
 			);
 			return next(error);
 		}
+		return res.status(200).json(product);
 	} catch (err) {
 		console.error(err);
 		const error = new HttpError('Could not verify the product', 500);
@@ -40,13 +41,12 @@ exports.create = async (req, res, next) => {
 		name,
 		description,
 		price,
-		image_url = null,
-		quantity = 0,
+		image_url = '',
 		available = false,
 	} = req.body;
 
 	try {
-		const checkProduct = await Product.findOne({ name: name });
+		const checkProduct = await Product.findOne({ where: { name: name } });
 		if (checkProduct) {
 			const error = new HttpError('Product name already in the database', 422);
 			return next(error);
@@ -63,7 +63,6 @@ exports.create = async (req, res, next) => {
 			description,
 			price,
 			image_url,
-			quantity,
 			available,
 		});
 
@@ -76,7 +75,7 @@ exports.create = async (req, res, next) => {
 };
 
 exports.edit = async (req, res, next) => {
-	const { name, description, price, image_url, quantity, available } = req.body;
+	const { name, description, price, image_url = '', available } = req.body;
 
 	const { productId } = req.params;
 
@@ -103,7 +102,6 @@ exports.edit = async (req, res, next) => {
 	product.description = description;
 	product.price = price;
 	product.image_url = image_url;
-	product.quantity = quantity;
 	product.available = available;
 
 	try {

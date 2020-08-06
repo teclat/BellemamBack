@@ -10,14 +10,14 @@ module.exports = {
 				allowNull: false,
 			},
 			event_id: {
-				type: Sequelize.UUID,
+				type: Sequelize.INTEGER,
 				references: { model: 'events', key: 'id' },
 				allowNull: false,
 				onUpdate: 'CASCADE',
 				onDelete: 'CASCADE',
 			},
 			product_id: {
-				type: Sequelize.UUID,
+				type: Sequelize.INTEGER,
 				references: { model: 'products', key: 'id' },
 				allowNull: false,
 				onUpdate: 'CASCADE',
