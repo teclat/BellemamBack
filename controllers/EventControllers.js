@@ -22,6 +22,26 @@ exports.index = async (req, res, next) => {
 	}
 };
 
+exports.getEventById = async (req, res, next) => {
+	const { eventId } = req.params;
+
+	try {
+		const event = await Event.findOne({ where: { id: eventId } });
+		if (!event) {
+			const error = new HttpError(
+				'Could not find any event for the provided id',
+				404,
+			);
+			return next(error);
+		}
+		return res.status(200).json(event);
+	} catch (err) {
+		console.error(err);
+		const error = new HttpError('Server error!', 500);
+		return next(error);
+	}
+};
+
 exports.create = async (req, res, next) => {
 	const {
 		date,
