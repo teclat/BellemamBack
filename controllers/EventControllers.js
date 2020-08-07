@@ -51,15 +51,16 @@ exports.create = async (req, res, next) => {
 		phone,
 		baby_name = '',
 		baby_birthday,
-		baby_image_url = '',
-		mom_image_url = '',
-		dad_image_url = '',
-		background_image_url = '',
 		theme,
 		history_text = '',
 		invite_text = '',
 	} = req.body;
 	const { userId } = req.params;
+
+	const baby_image_url = req.files[0].location;
+	const mom_image_url = req.files[1].location;
+	const dad_image_url = req.files[2].location;
+	const background_image_url = req.files[3].location;
 
 	try {
 		const validUser = await User.findOne({ where: { id: userId } });
@@ -114,16 +115,17 @@ exports.edit = async (req, res, next) => {
 		address,
 		baby_name = '',
 		baby_birthday,
-		baby_image_url = '',
-		mom_image_url = '',
-		dad_image_url = '',
-		background_image_url = '',
 		theme,
 		history_text = '',
 		invite_text = '',
 	} = req.body;
 
 	const { eventId } = req.params;
+
+	const baby_image_url = req.files[0].location;
+	const mom_image_url = req.files[1].location;
+	const dad_image_url = req.files[2].location;
+	const background_image_url = req.files[3].location;
 
 	let event;
 	try {

@@ -37,13 +37,9 @@ exports.indexProductById = async (req, res, next) => {
 };
 
 exports.create = async (req, res, next) => {
-	const {
-		name,
-		description,
-		price,
-		image_url = '',
-		available = false,
-	} = req.body;
+	const { name, description, price, available = false } = req.body;
+
+	const image_url = req.file.location;
 
 	try {
 		const checkProduct = await Product.findOne({ where: { name: name } });
@@ -75,9 +71,10 @@ exports.create = async (req, res, next) => {
 };
 
 exports.edit = async (req, res, next) => {
-	const { name, description, price, image_url = '', available } = req.body;
+	const { name, description, price, available } = req.body;
 
 	const { productId } = req.params;
+	const image_url = req.file.location;
 
 	let product;
 	try {
