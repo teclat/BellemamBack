@@ -168,7 +168,7 @@ exports.subscribeToEvent = async (req, res, next) => {
 	} = req.body;
 
 	try {
-		const checkEventGuest = await User.findOne({ where: { event_id: event_id, user_id: user_id } });
+		const checkEventGuest = await EventGuest.findOne({ where: { event_id: event_id, user_id: user_id } });
 		if (checkEventGuest) {
 			const error = new HttpError('Already subscribed', 422);
 			return next(error);
