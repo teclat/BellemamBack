@@ -21,6 +21,10 @@ module.exports = {
 				type: Sequelize.STRING,
 				allowNull: false,
 			},
+			relationship: {
+				type: Sequelize.ENUM('dad', 'mom'),
+				allowNull: true,
+			},
 			role: {
 				type: Sequelize.ENUM('parent', 'guest', 'admin'),
 				allowNull: false,

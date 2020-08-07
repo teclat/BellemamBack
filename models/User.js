@@ -17,6 +17,10 @@ class User extends Model {
 					type: DataTypes.STRING,
 					allowNull: false,
 				},
+				relationship: {
+					type: DataTypes.ENUM('dad', 'mom'),
+					allowNull: true,
+				},
 				role: {
 					type: DataTypes.ENUM('parent', 'guest', 'admin'),
 					allowNull: false,
