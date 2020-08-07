@@ -61,6 +61,8 @@ exports.create = async (req, res, next) => {
 	} = req.body;
 	const { userId } = req.params;
 
+	console.log("type", type);
+
 	try {
 		const validUser = await User.findOne({ where: { id: userId } });
 		if (!validUser) {

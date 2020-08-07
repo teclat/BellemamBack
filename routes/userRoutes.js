@@ -10,5 +10,6 @@ router.post('/login', userController.login);
 
 router.use(checkAuth);
 router.post('/update', userController.update);
+router.post('/subscribe', userController.subscribeToEvent);
 
 module.exports = router;

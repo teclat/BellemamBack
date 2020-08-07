@@ -83,6 +83,11 @@ class Event extends Model {
 			through: 'event_products',
 			as: 'products',
 		});
+		this.belongsToMany(models.User, {
+			foreignKey: 'event_id',
+			through: 'event_guests',
+			as: 'guests'
+		});
 	}
 }
 

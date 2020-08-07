@@ -62,6 +62,11 @@ class User extends Model {
 
 	//também tem produtos? ou os produtos/presentes são relacionados ao evento?
 	static associate(models) {
+		this.belongsToMany(models.Event, {
+			foreignKey: 'user_id',
+			through: 'event_guests',
+			as: 'subscribed_events'
+		});
 		this.hasOne(models.Event, {
 			foreignKey: 'user_id',
 			as: 'event',
