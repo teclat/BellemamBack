@@ -57,10 +57,26 @@ exports.create = async (req, res, next) => {
 	} = req.body;
 	const { userId } = req.params;
 
-	const baby_image_url = req.files[0].location;
-	const mom_image_url = req.files[1].location;
-	const dad_image_url = req.files[2].location;
-	const background_image_url = req.files[3].location;
+	let baby_image_url = '';
+	let mom_image_url = '';
+	let dad_image_url = '';
+	let background_image_url = '';
+
+	if (req.files[0]) {
+		baby_image_url = req.files[0].location;
+	}
+
+	if (req.files[1]) {
+		mom_image_url = req.files[1].location;
+	}
+
+	if (req.files[2]) {
+		dad_image_url = req.files[2].location;
+	}
+
+	if (req.files[3]) {
+		background_image_url = req.files[3].location;
+	}
 
 	try {
 		const validUser = await User.findOne({ where: { id: userId } });
