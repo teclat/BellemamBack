@@ -5,6 +5,7 @@ require('dotenv').config();
 const userRoutes = require('./routes/userRoutes');
 const eventRoutes = require('./routes/eventRoutes');
 const productRoutes = require('./routes/productRoutes');
+const noteRoutes = require('./routes/noteRoutes');
 
 require('./database');
 
@@ -16,6 +17,7 @@ app.use(cors());
 app.use('/api/users', userRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/products', productRoutes);
+app.use('/api/notes', noteRoutes);
 
 //error middleware
 app.use((error, req, res, next) => {

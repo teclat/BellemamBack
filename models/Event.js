@@ -88,6 +88,10 @@ class Event extends Model {
 			through: 'event_guests',
 			as: 'guests'
 		});
+		this.hasMany(models.Note, {
+			foreignKey: 'event_id',
+			as: 'notes',
+		});
 	}
 }
 

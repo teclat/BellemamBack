@@ -1,6 +1,7 @@
 const HttpError = require('../models/http-error');
 const User = require('../models/User');
 const Event = require('../models/Event');
+const EventProduct = require('../models/EventProduct');
 
 exports.index = async (req, res, next) => {
 	const { userId } = req.params;
@@ -54,6 +55,7 @@ exports.create = async (req, res, next) => {
 		theme,
 		history_text = '',
 		invite_text = '',
+		products
 	} = req.body;
 	const { userId } = req.params;
 
@@ -81,6 +83,8 @@ exports.create = async (req, res, next) => {
 	}
 
 	try {
+		console.log("products", products);
+		let jsonproducts = JSON.parse(products);
 		const event = await Event.create({
 			user_id: userId,
 			type,
@@ -96,7 +100,12 @@ exports.create = async (req, res, next) => {
 			background_image_url,
 			theme,
 			history_text,
-			invite_text,
+			invite_text
+		});
+
+		jsonproducts.forEach(async (product) => {
+			let ep = await EventProduct.create(product);
+			console.log(ep);
 		});
 
 		return res.status(200).json(event);

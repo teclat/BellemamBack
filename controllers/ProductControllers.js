@@ -39,8 +39,6 @@ exports.indexProductById = async (req, res, next) => {
 exports.create = async (req, res, next) => {
 	const { name, description, price, available = false } = req.body;
 
-	const image_url = req.file.location;
-
 	try {
 		const checkProduct = await Product.findOne({ where: { name: name } });
 		if (checkProduct) {
@@ -58,7 +56,6 @@ exports.create = async (req, res, next) => {
 			name,
 			description,
 			price,
-			image_url,
 			available,
 		});
 

@@ -4,6 +4,7 @@ const HttpError = require('../models/http-error');
 
 const User = require('../models/User');
 const EventGuest = require('../models/EventGuest');
+const Event = require('../models/Event');
 
 exports.create = async (req, res, next) => {
 	const {
@@ -103,7 +104,7 @@ exports.login = async (req, res, next) => {
 			process.env.JWT_KEY,
 			{ expiresIn: '12h' },
 		);
-		return res.status(201).json({
+		return res.status(200).json({
 			userName: user.name,
 			role: user.role,
 			userId: user.id,
@@ -188,8 +189,28 @@ exports.subscribeToEvent = async (req, res, next) => {
 		return res.status(200).json(eventGuest);
 	} catch (err) {
 		console.error(err);
-		const error = new HttpError('Subscribed failed (save)', 500);
+		const error = new HttpError('Subscribed failed (save)', 400);
 		return next(error);
 	}
 };
 
+exports.subscribedEvents = async (req, res, next) => {
+	const {
+		user_id,
+	} = req.body;
+
+	try {
+		const events = await EventGuest.findAll({
+			where: {
+				user_id: user_id,
+			},
+			include: [{ model: Event, as: "event" }]
+		});
+
+		return res.status(200).json(events);
+	} catch (err) {
+		console.error(err);
+		const error = new HttpError('Get subscribed events failed', 400);
+		return next(error);
+	}
+};

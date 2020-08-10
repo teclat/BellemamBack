@@ -1,9 +1,13 @@
 const { Model, DataTypes } = require('sequelize');
 
-class EventGuest extends Model {
+class EventProduct extends Model {
     static init(sequelize) {
         super.init(
             {
+                quantity: {
+                    type: DataTypes.INTEGER,
+                    allowNull: true,
+                },
             },
             {
                 sequelize,
@@ -12,9 +16,9 @@ class EventGuest extends Model {
     }
 
     static associate(models) {
-        this.belongsTo(models.User, {
-            foreignKey: 'user_id',
-            as: 'guest',
+        this.belongsTo(models.Product, {
+            foreignKey: 'product_id',
+            as: 'product',
         });
         this.belongsTo(models.Event, {
             foreignKey: 'event_id',
@@ -23,4 +27,4 @@ class EventGuest extends Model {
     }
 }
 
-module.exports = EventGuest;
+module.exports = EventProduct;
