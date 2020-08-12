@@ -11,5 +11,6 @@ router.get('/all', noteController.index);
 router.post('/create', noteController.create);
 router.post('/update', noteController.edit);
 router.post('/user', noteController.notesByUserId);
+router.post('/event', noteController.notesByEventId);
 
 module.exports = router;

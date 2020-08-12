@@ -9,6 +9,7 @@ router.post('/create', userController.create);
 router.post('/login', userController.login);
 
 router.use(checkAuth);
+router.get('/:userId', userController.get);
 router.post('/update', userController.update);
 router.post('/subscribe', userController.subscribeToEvent);
 router.post('/subscribed-events', userController.subscribedEvents);

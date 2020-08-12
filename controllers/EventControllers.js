@@ -1,6 +1,9 @@
+const imageUpload = require('../middleware/image-upload');
+
 const HttpError = require('../models/http-error');
 const User = require('../models/User');
 const Event = require('../models/Event');
+const Gifted = require('../models/Gifted');
 const EventProduct = require('../models/EventProduct');
 
 exports.index = async (req, res, next) => {
@@ -43,6 +46,67 @@ exports.getEventById = async (req, res, next) => {
 	}
 };
 
+exports.getGiftList = async (req, res, next) => {
+	const { eventId } = req.params;
+
+	try {
+		const gifts = await EventProduct.findAll({
+			where: { event_id: eventId },
+			include: ["product"]
+		});
+		if (!gifts || gifts.length == 0) {
+			const error = new HttpError(
+				'Could not find any gifts for the provided event',
+				404,
+			);
+			return next(error);
+		}
+		return res.status(200).json(gifts);
+	} catch (err) {
+		console.error(err);
+		const error = new HttpError('Server error!', 500);
+		return next(error);
+	}
+};
+
+exports.getGifteds = async (req, res, next) => {
+	const { eventId } = req.params;
+
+	try {
+		const gifts = await Gifted.findAll({
+			where: { event_id: eventId },
+			include: ["product"]
+		});
+		if (!gifts || gifts.length == 0) {
+			const error = new HttpError(
+				'Could not find any gifts for the provided event',
+				404,
+			);
+			return next(error);
+		}
+		return res.status(200).json(gifts);
+	} catch (err) {
+		console.error(err);
+		const error = new HttpError('Server error!', 500);
+		return next(error);
+	}
+};
+
+exports.giveGift = async (req, res, next) => {
+	const { event_id, user_id, product_id } = req.body;
+
+	try {
+		const gift = await Gifted.create({
+			event_id, user_id, product_id
+		})
+		return res.status(200).json(gift);
+	} catch (err) {
+		console.error(err);
+		const error = new HttpError('Server error!', 500);
+		return next(error);
+	}
+};
+
 exports.create = async (req, res, next) => {
 	const {
 		date,
@@ -55,30 +119,14 @@ exports.create = async (req, res, next) => {
 		theme,
 		history_text = '',
 		invite_text = '',
+		url,
+		baby_image,
+		mom_image,
+		dad_image,
+		background_image,
 		products
 	} = req.body;
 	const { userId } = req.params;
-
-	let baby_image_url = '';
-	let mom_image_url = '';
-	let dad_image_url = '';
-	let background_image_url = '';
-
-	if (req.files[0]) {
-		baby_image_url = req.files[0].location;
-	}
-
-	if (req.files[1]) {
-		mom_image_url = req.files[1].location;
-	}
-
-	if (req.files[2]) {
-		dad_image_url = req.files[2].location;
-	}
-
-	if (req.files[3]) {
-		background_image_url = req.files[3].location;
-	}
 
 	try {
 		const validUser = await User.findOne({ where: { id: userId } });
@@ -100,7 +148,6 @@ exports.create = async (req, res, next) => {
 
 	try {
 		console.log("products", products);
-		let jsonproducts = JSON.parse(products);
 		const event = await Event.create({
 			user_id: userId,
 			type,
@@ -110,16 +157,41 @@ exports.create = async (req, res, next) => {
 			address,
 			baby_name,
 			baby_birthday,
-			baby_image_url,
-			mom_image_url,
-			dad_image_url,
-			background_image_url,
+			url,
 			theme,
 			history_text,
 			invite_text
 		});
 
-		jsonproducts.forEach(async (product) => {
+		let baby_image_url = '';
+		let mom_image_url = '';
+		let dad_image_url = '';
+		let background_image_url = '';
+
+		if (baby_image) {
+			baby_image_url = await imageUpload(baby_image, 'baby-image-' + event.id)
+		}
+
+		if (mom_image) {
+			mom_image_url = await imageUpload(mom_image, 'mom-image-' + event.id)
+		}
+
+		if (dad_image) {
+			dad_image_url = await imageUpload(dad_image, 'dad-image-' + event.id)
+		}
+
+		if (background_image) {
+			background_image_url = await imageUpload(background_image, 'background-image-' + event.id)
+		}
+
+		event_with_images = await event.update({
+			baby_image_url,
+			mom_image_url,
+			dad_image_url,
+			background_image_url,
+		})
+
+		products.forEach(async (product) => {
 			let ep = await EventProduct.create(product);
 			console.log(ep);
 		});
@@ -132,25 +204,52 @@ exports.create = async (req, res, next) => {
 	}
 };
 
+exports.verifyUrl = async (req, res, next) => {
+	const { url } = req.params;
+
+	try {
+		const event = await Event.findOne({ where: { url: url } });
+		return res.status(200).json(event ? false : true);
+	} catch (err) {
+		console.error(err);
+		const error = new HttpError('Unable to verify', 500);
+		return next(error);
+	}
+};
+
+exports.getByUrl = async (req, res, next) => {
+	const { url } = req.params;
+
+	try {
+		const event = await Event.findOne({ where: { url: url } });
+		return res.status(200).json(event);
+	} catch (err) {
+		console.error(err);
+		const error = new HttpError('Unable to verify', 500);
+		return next(error);
+	}
+};
+
 exports.edit = async (req, res, next) => {
 	const {
-		type,
 		date,
+		type,
 		hour,
 		address,
+		phone,
 		baby_name = '',
 		baby_birthday,
 		theme,
 		history_text = '',
 		invite_text = '',
+		url,
+		baby_image,
+		mom_image,
+		dad_image,
+		background_image
 	} = req.body;
 
 	const { eventId } = req.params;
-
-	const baby_image_url = req.files[0].location;
-	const mom_image_url = req.files[1].location;
-	const dad_image_url = req.files[2].location;
-	const background_image_url = req.files[3].location;
 
 	let event;
 	try {
@@ -168,23 +267,27 @@ exports.edit = async (req, res, next) => {
 		return next(error);
 	}
 
-	event.type = type;
-	event.date = date;
-	event.hour = hour;
-	event.address = address;
-	event.baby_name = baby_name;
-	event.baby_birthday = baby_birthday;
-	event.baby_image_url = baby_image_url;
-	event.mom_image_url = mom_image_url;
-	event.dad_image_url = dad_image_url;
-	event.background_image_url = background_image_url;
-	event.theme = theme;
-	event.history_text = history_text;
-	event.invite_text = invite_text;
+	if (baby_image) {
+		event.baby_image_url = await imageUpload(baby_image, 'baby-image-' + event.id)
+	}
+
+	if (mom_image) {
+		event.mom_image_url = await imageUpload(mom_image, 'mom-image-' + event.id)
+	}
+
+	if (dad_image) {
+		event.dad_image_url = await imageUpload(dad_image, 'dad-image-' + event.id)
+	}
+
+	if (background_image) {
+		event.background_image_url = await imageUpload(background_image, 'background-image-' + event.id)
+	}
 
 	try {
-		await event.save();
-		return res.status(200).json({ message: 'Event edited!', event: event });
+		let updated = await event.update({
+			type, date, hour, url, phone, address, baby_name, baby_birthday, theme, history_text, invite_text
+		});
+		return res.status(200).json({ message: 'Event edited!', event: updated });
 	} catch (err) {
 		console.error(err);
 		const error = new HttpError('Unable to save the event', 500);

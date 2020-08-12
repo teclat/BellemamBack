@@ -34,6 +34,10 @@ class Event extends Model {
 					type: DataTypes.STRING,
 					allowNull: true,
 				},
+				url: {
+					type: DataTypes.STRING,
+					allowNull: true,
+				},
 				baby_birthday: {
 					type: DataTypes.DATE,
 					allowNull: false,

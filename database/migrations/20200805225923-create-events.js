@@ -20,6 +20,11 @@ module.exports = {
 				type: Sequelize.STRING,
 				allowNull: false,
 			},
+			url: {
+				type: Sequelize.STRING,
+				unique: true,
+				allowNull: false,
+			},
 			date: {
 				type: Sequelize.DATE,
 				allowNull: false,

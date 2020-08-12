@@ -51,6 +51,12 @@ class User extends Model {
 				},
 			},
 			{
+				defaultScope: {
+					attributes: { exclude: ['password'] },
+				},
+				scopes: {
+					withPassword: {}
+				},
 				sequelize,
 			},
 		);
@@ -76,5 +82,4 @@ class User extends Model {
 		});
 	}
 }
-
 module.exports = User;

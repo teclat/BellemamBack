@@ -4,18 +4,17 @@ const router = Router();
 const eventController = require('../controllers/EventControllers');
 
 const checkAuth = require('../middleware/check-auth');
-const fileUpload = require('../middleware/file-upload');
-const multer = require('multer');
 
 router.use(checkAuth);
 
-router.post(
-	'/:userId/create',
-	multer(fileUpload).any(),
-	eventController.create,
-);
+router.post('/:userId/create', eventController.create);
 router.get('/:userId', eventController.index);
+router.get('/gifts/:eventId', eventController.getGiftList);
 router.get('/id/:eventId', eventController.getEventById);
-router.patch('/:eventId/edit', multer(fileUpload).any(), eventController.edit);
+router.get('/:eventId/gifteds', eventController.getGifteds);
+router.get('/verify/:url', eventController.verifyUrl);
+router.get('/event/:url', eventController.getByUrl);
+router.post('/give-gift', eventController.giveGift);
+router.patch('/:eventId/edit', eventController.edit);
 
 module.exports = router;

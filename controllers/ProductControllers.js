@@ -1,5 +1,6 @@
 const Product = require('../models/Product');
 const HttpError = require('../models/http-error');
+const imageUpload = require('../middleware/image-upload');
 
 exports.index = async (req, res, next) => {
 	try {
@@ -37,7 +38,8 @@ exports.indexProductById = async (req, res, next) => {
 };
 
 exports.create = async (req, res, next) => {
-	const { name, description, price, available = false } = req.body;
+	const { name, description, price, available = false, image } = req.body;
+	console.log("ENTROOUU");
 
 	try {
 		const checkProduct = await Product.findOne({ where: { name: name } });
@@ -58,8 +60,12 @@ exports.create = async (req, res, next) => {
 			price,
 			available,
 		});
+		const location = await imageUpload(image, 'product-' + createdProduct.id)
+		const product = await createdProduct.update({
+			image_url: location
+		});
 
-		return res.status(200).json(createdProduct);
+		return res.status(200).json(product);
 	} catch (err) {
 		console.error(err);
 		const error = new HttpError('Create product failed', 500);
@@ -68,10 +74,8 @@ exports.create = async (req, res, next) => {
 };
 
 exports.edit = async (req, res, next) => {
-	const { name, description, price, available } = req.body;
-
+	const { name, description, price, available, image } = req.body;
 	const { productId } = req.params;
-	const image_url = req.file.location;
 
 	let product;
 	try {
@@ -92,10 +96,12 @@ exports.edit = async (req, res, next) => {
 		return next(error);
 	}
 
+	const location = await imageUpload(image, 'product-' + product.id)
+
+	product.image_url = location;
 	product.name = name;
 	product.description = description;
 	product.price = price;
-	product.image_url = image_url;
 	product.available = available;
 
 	try {

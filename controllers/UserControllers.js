@@ -70,7 +70,7 @@ exports.login = async (req, res, next) => {
 
 	let user;
 	try {
-		user = await User.findOne({ where: { email: email } });
+		user = await User.scope("withPassword").findOne({ where: { email: email } });
 		if (!user) {
 			const error = new HttpError('Login failed, invalid credentials', 403);
 			return next(error);
@@ -86,6 +86,7 @@ exports.login = async (req, res, next) => {
 
 	try {
 		let isValidPass = false;
+		console.log("user", user);
 		isValidPass = await bcrypt.compare(password, user.password);
 
 		if (!isValidPass) {
@@ -107,13 +108,33 @@ exports.login = async (req, res, next) => {
 		return res.status(200).json({
 			userName: user.name,
 			role: user.role,
-			userId: user.id,
+			id: user.id,
 			email: user.email,
 			token: token,
 		});
 	} catch (err) {
 		console.error(err);
 		const error = new HttpError('Login failed, JWT', 500);
+		return next(error);
+	}
+};
+
+exports.get = async (req, res, next) => {
+	const {
+		userId
+	} = req.params;
+
+	let user = null;
+	try {
+		user = await User.findOne({ where: { id: userId } });
+		if (!user) {
+			const error = new HttpError('User not exist', 400);
+			return next(error);
+		}
+		return res.status(200).json(user);
+	} catch (err) {
+		console.error(err);
+		const error = new HttpError('Connection error, user check DB', 500);
 		return next(error);
 	}
 };
@@ -126,7 +147,6 @@ exports.update = async (req, res, next) => {
 		relationship,
 		city = '',
 		state = '',
-		events = [''],
 	} = req.body;
 
 	let checkUser = null;
@@ -145,12 +165,10 @@ exports.update = async (req, res, next) => {
 	try {
 		const updatedUser = await checkUser.update({
 			name,
-			email,
 			relationship,
 			phone,
 			city,
 			state,
-			events,
 		});
 
 		updatedUser.password = undefined;

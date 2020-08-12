@@ -1,4 +1,5 @@
 const Note = require('../models/Note');
+const User = require('../models/User');
 const HttpError = require('../models/http-error');
 
 exports.index = async (req, res, next) => {
@@ -36,20 +37,28 @@ exports.notesByUserId = async (req, res, next) => {
     }
 };
 
-exports.create = async (req, res, next) => {
-    const { user_id, event_id, text } = req.body;
+exports.notesByEventId = async (req, res, next) => {
+    const { event_id } = req.body;
 
     try {
-        const checkNote = await Note.findOne({ where: { user_id: user_id, event_id: event_id } });
-        if (checkNote) {
-            const error = new HttpError('Note already of this user in that event', 422);
+        const note = await Note.findAll({ where: { event_id: event_id }, include: ["user"] });
+        if (!note) {
+            const error = new HttpError(
+                'Could not find any note with the given event id',
+                422,
+            );
             return next(error);
         }
+        return res.status(200).json(note);
     } catch (err) {
         console.error(err);
-        const error = new HttpError('Could not create the note', 500);
+        const error = new HttpError('Could not verify notes', 500);
         return next(error);
     }
+};
+
+exports.create = async (req, res, next) => {
+    const { user_id, event_id, text } = req.body;
 
     try {
         const createdNote = await Note.create({
