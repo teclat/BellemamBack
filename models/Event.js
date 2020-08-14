@@ -58,6 +58,14 @@ class Event extends Model {
 					type: DataTypes.STRING,
 					allowNull: true,
 				},
+				dad_name: {
+					type: DataTypes.STRING,
+					allowNull: true,
+				},
+				mom_name: {
+					type: DataTypes.STRING,
+					allowNull: true,
+				},
 				theme: {
 					type: DataTypes.ENUM('theme1', 'theme2'),
 					allowNull: false,
@@ -83,7 +91,7 @@ class Event extends Model {
 			as: 'user',
 		});
 		this.belongsToMany(models.Product, {
-			foreignKey: 'product_id',
+			foreignKey: 'event_id',
 			through: 'event_products',
 			as: 'products',
 		});
@@ -95,6 +103,10 @@ class Event extends Model {
 		this.hasMany(models.Note, {
 			foreignKey: 'event_id',
 			as: 'notes',
+		});
+		this.hasMany(models.Gallery, {
+			foreignKey: 'event_id',
+			as: 'gallery',
 		});
 	}
 }

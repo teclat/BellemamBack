@@ -9,6 +9,10 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       image_url: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      text: {
         type: Sequelize.STRING
       },
       event_id: {

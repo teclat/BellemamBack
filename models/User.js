@@ -25,6 +25,10 @@ class User extends Model {
 					type: DataTypes.ENUM('parent', 'guest', 'admin'),
 					allowNull: false,
 				},
+				image_url: {
+					type: DataTypes.STRING,
+					allowNull: true,
+				},
 				phone: {
 					type: DataTypes.STRING,
 					allowNull: false,

@@ -4,6 +4,10 @@ class Gifted extends Model {
     static init(sequelize) {
         super.init(
             {
+                price: {
+                    type: DataTypes.FLOAT,
+                    allowNull: false,
+                },
             },
             {
                 sequelize,

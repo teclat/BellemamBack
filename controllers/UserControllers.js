@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const HttpError = require('../models/http-error');
+const imageUpload = require('../middleware/image-upload');
 
 const User = require('../models/User');
 const EventGuest = require('../models/EventGuest');
@@ -14,6 +15,7 @@ exports.create = async (req, res, next) => {
 		role,
 		phone,
 		relationship,
+		image,
 		city = '',
 		state = '',
 		events = [''],
@@ -56,8 +58,13 @@ exports.create = async (req, res, next) => {
 			events,
 		});
 
+		image_url = await imageUpload(image, 'user-' + createdUser.id);
+		with_image = await createdUser.update({
+			image_url
+		})
 		createdUser.password = undefined;
-		return res.status(200).json(createdUser);
+
+		return res.status(200).json(with_image);
 	} catch (err) {
 		console.error(err);
 		const error = new HttpError('Create user failed (save)', 500);
@@ -147,6 +154,7 @@ exports.update = async (req, res, next) => {
 		relationship,
 		city = '',
 		state = '',
+		image
 	} = req.body;
 
 	let checkUser = null;
@@ -163,12 +171,18 @@ exports.update = async (req, res, next) => {
 	}
 
 	try {
+		let url = "";
+		if (image) {
+			url = await imageUpload(image, 'user-' + checkUser.id);
+			console.log("url", url)
+		}
 		const updatedUser = await checkUser.update({
 			name,
 			relationship,
 			phone,
 			city,
 			state,
+			image_url: url !== "" ? url : checkUser.image_url
 		});
 
 		updatedUser.password = undefined;

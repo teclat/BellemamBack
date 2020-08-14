@@ -1,16 +1,22 @@
 const imageUpload = require('../middleware/image-upload');
+const sequelize = require('sequelize');
 
 const HttpError = require('../models/http-error');
 const User = require('../models/User');
 const Event = require('../models/Event');
 const Gifted = require('../models/Gifted');
+const Product = require('../models/Product');
+const Note = require('../models/Note');
 const EventProduct = require('../models/EventProduct');
 
 exports.index = async (req, res, next) => {
 	const { userId } = req.params;
 
 	try {
-		const events = await Event.findAll({ where: { user_id: userId } });
+		const events = await Event.findAll({
+			where: { user_id: userId },
+			include: ["products"]
+		});
 		if (!events) {
 			const error = new HttpError(
 				'Could not find any event for the provided user',
@@ -39,6 +45,58 @@ exports.getEventById = async (req, res, next) => {
 			return next(error);
 		}
 		return res.status(200).json(event);
+	} catch (err) {
+		console.error(err);
+		const error = new HttpError('Server error!', 500);
+		return next(error);
+	}
+};
+
+exports.dashboard = async (req, res, next) => {
+	const { eventId } = req.params;
+
+	try {
+		let gifteds = await Gifted.findOne({
+			attributes: [
+				'event_id',
+				[sequelize.fn('sum', sequelize.col('price')), 'total'],
+				[sequelize.fn('count', sequelize.col('id')), 'qtd'],
+				[sequelize.fn('max', sequelize.col('product_id')), 'lastProduct'],
+			],
+			group: ['event_id'],
+			where: {
+				event_id: eventId
+			}
+		})
+
+		let lastProduct = null;
+		if (gifteds) {
+			lastProduct = await Product.findOne({
+				where: {
+					id: gifteds.getDataValue("lastProduct")
+				}
+			})
+		}
+
+		let lastNoteId = await Note.findOne({
+			attributes: [
+				[sequelize.fn('max', sequelize.col('id')), 'max'],
+			],
+			where: {
+				event_id: eventId
+			}
+		})
+
+		let lastNote = null;
+		if (lastNoteId) {
+			lastNote = await Note.findOne({
+				where: {
+					id: lastNoteId.getDataValue("max")
+				},
+				include: ["user"]
+			})
+		}
+		return res.status(200).json({ gifteds, lastNoteId, lastNote, lastProduct });
 	} catch (err) {
 		console.error(err);
 		const error = new HttpError('Server error!', 500);
@@ -96,8 +154,10 @@ exports.giveGift = async (req, res, next) => {
 	const { event_id, user_id, product_id } = req.body;
 
 	try {
+		product = await Product.findOne({ where: { id: product_id } });
+
 		const gift = await Gifted.create({
-			event_id, user_id, product_id
+			event_id, user_id, product_id, price: product.price
 		})
 		return res.status(200).json(gift);
 	} catch (err) {
@@ -124,6 +184,8 @@ exports.create = async (req, res, next) => {
 		mom_image,
 		dad_image,
 		background_image,
+		mom_name,
+		dad_name,
 		products
 	} = req.body;
 	const { userId } = req.params;
@@ -147,7 +209,15 @@ exports.create = async (req, res, next) => {
 	}
 
 	try {
-		console.log("products", products);
+		const existed = await Event.findOne({ where: { user_id: userId } });
+		if (existed) {
+			const error = new HttpError(
+				'This user have a event',
+				400,
+			);
+			return next(error);
+		}
+
 		const event = await Event.create({
 			user_id: userId,
 			type,
@@ -157,6 +227,8 @@ exports.create = async (req, res, next) => {
 			address,
 			baby_name,
 			baby_birthday,
+			mom_name,
+			dad_name,
 			url,
 			theme,
 			history_text,
@@ -191,7 +263,10 @@ exports.create = async (req, res, next) => {
 			background_image_url,
 		})
 
+		console.log("products", products);
 		products.forEach(async (product) => {
+			product.event_id = event.id;
+			console.log("product ======== ", product);
 			let ep = await EventProduct.create(product);
 			console.log(ep);
 		});
@@ -221,7 +296,12 @@ exports.getByUrl = async (req, res, next) => {
 	const { url } = req.params;
 
 	try {
-		const event = await Event.findOne({ where: { url: url } });
+		const event = await Event.findOne({
+			where: { url: url },
+			include: [{
+				model: Note, as: "notes", include: ["user"]
+			}, "guests", "products", "gallery"]
+		});
 		return res.status(200).json(event);
 	} catch (err) {
 		console.error(err);
@@ -291,6 +371,34 @@ exports.edit = async (req, res, next) => {
 	} catch (err) {
 		console.error(err);
 		const error = new HttpError('Unable to save the event', 500);
+		return next(error);
+	}
+};
+
+exports.saveProducts = async (req, res, next) => {
+	const {
+		events_products
+	} = req.body;
+
+	try {
+		events_products.forEach(async (e) => {
+			if (e.id != null) {
+				let event = await EventProduct.findOne({ where: { id: e.id } });
+
+				if (e.selected == false) {
+					await event.destroy();
+				} else {
+					await event.update({
+						quantity: e.quantity
+					})
+				}
+			}
+		})
+		return res.status(200).json({ message: 'Edited!' });
+
+	} catch (err) {
+		console.error(err);
+		const error = new HttpError('Unable to find any event - server error', 500);
 		return next(error);
 	}
 };

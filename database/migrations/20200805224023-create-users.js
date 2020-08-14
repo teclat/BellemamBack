@@ -21,6 +21,10 @@ module.exports = {
 				type: Sequelize.STRING,
 				allowNull: false,
 			},
+			image_url: {
+				type: Sequelize.STRING,
+				allowNull: true,
+			},
 			relationship: {
 				type: Sequelize.ENUM('dad', 'mom'),
 				allowNull: true,

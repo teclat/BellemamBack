@@ -45,6 +45,14 @@ module.exports = {
 				type: Sequelize.STRING,
 				allowNull: true,
 			},
+			dad_name: {
+				type: Sequelize.STRING,
+				allowNull: true,
+			},
+			mom_name: {
+				type: Sequelize.STRING,
+				allowNull: true,
+			},
 			baby_birthday: {
 				type: Sequelize.DATE,
 				allowNull: false,

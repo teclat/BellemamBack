@@ -33,7 +33,7 @@ class Product extends Model {
 
 	static associate(models) {
 		this.belongsToMany(models.Event, {
-			foreignKey: 'event_id',
+			foreignKey: 'product_id',
 			through: 'event_products',
 			as: 'events',
 		});

@@ -16,6 +16,10 @@ module.exports = {
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE',
       },
+      price: {
+        type: Sequelize.FLOAT,
+        allowNull: false,
+      },
       product_id: {
         type: Sequelize.INTEGER,
         references: { model: 'products', key: 'id' },
