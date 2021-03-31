@@ -58,10 +58,13 @@ exports.create = async (req, res, next) => {
 			events,
 		});
 
-		image_url = await imageUpload(image, 'user-' + createdUser.id);
-		with_image = await createdUser.update({
-			image_url
-		})
+		if (image) {
+			image_url = await imageUpload(image, 'user-' + createdUser.id);
+			with_image = await createdUser.update({
+				image_url,
+			});
+		}
+
 		createdUser.password = undefined;
 
 		return res.status(200).json(with_image);
@@ -77,7 +80,9 @@ exports.login = async (req, res, next) => {
 
 	let user;
 	try {
-		user = await User.scope("withPassword").findOne({ where: { email: email } });
+		user = await User.scope('withPassword').findOne({
+			where: { email: email },
+		});
 		if (!user) {
 			const error = new HttpError('Login failed, invalid credentials', 403);
 			return next(error);
@@ -93,7 +98,7 @@ exports.login = async (req, res, next) => {
 
 	try {
 		let isValidPass = false;
-		console.log("user", user);
+		console.log('user', user);
 		isValidPass = await bcrypt.compare(password, user.password);
 
 		if (!isValidPass) {
@@ -127,9 +132,7 @@ exports.login = async (req, res, next) => {
 };
 
 exports.get = async (req, res, next) => {
-	const {
-		userId
-	} = req.params;
+	const { userId } = req.params;
 
 	let user = null;
 	try {
@@ -154,7 +157,7 @@ exports.update = async (req, res, next) => {
 		relationship,
 		city = '',
 		state = '',
-		image
+		image,
 	} = req.body;
 
 	let checkUser = null;
@@ -171,10 +174,10 @@ exports.update = async (req, res, next) => {
 	}
 
 	try {
-		let url = "";
+		let url = '';
 		if (image) {
 			url = await imageUpload(image, 'user-' + checkUser.id);
-			console.log("url", url)
+			console.log('url', url);
 		}
 		const updatedUser = await checkUser.update({
 			name,
@@ -182,7 +185,7 @@ exports.update = async (req, res, next) => {
 			phone,
 			city,
 			state,
-			image_url: url !== "" ? url : checkUser.image_url
+			image_url: url !== '' ? url : checkUser.image_url,
 		});
 
 		updatedUser.password = undefined;
@@ -195,13 +198,12 @@ exports.update = async (req, res, next) => {
 };
 
 exports.subscribeToEvent = async (req, res, next) => {
-	const {
-		event_id,
-		user_id,
-	} = req.body;
+	const { event_id, user_id } = req.body;
 
 	try {
-		const checkEventGuest = await EventGuest.findOne({ where: { event_id: event_id, user_id: user_id } });
+		const checkEventGuest = await EventGuest.findOne({
+			where: { event_id: event_id, user_id: user_id },
+		});
 		if (checkEventGuest) {
 			const error = new HttpError('Already subscribed', 422);
 			return next(error);
@@ -227,16 +229,14 @@ exports.subscribeToEvent = async (req, res, next) => {
 };
 
 exports.subscribedEvents = async (req, res, next) => {
-	const {
-		user_id,
-	} = req.body;
+	const { user_id } = req.body;
 
 	try {
 		const events = await EventGuest.findAll({
 			where: {
 				user_id: user_id,
 			},
-			include: [{ model: Event, as: "event" }]
+			include: [{ model: Event, as: 'event' }],
 		});
 
 		return res.status(200).json(events);

@@ -15,7 +15,7 @@ exports.index = async (req, res, next) => {
 	try {
 		const events = await Event.findAll({
 			where: { user_id: userId },
-			include: ["products"]
+			include: ['products'],
 		});
 		if (!events) {
 			const error = new HttpError(
@@ -65,36 +65,34 @@ exports.dashboard = async (req, res, next) => {
 			],
 			group: ['event_id'],
 			where: {
-				event_id: eventId
-			}
-		})
+				event_id: eventId,
+			},
+		});
 
 		let lastProduct = null;
 		if (gifteds) {
 			lastProduct = await Product.findOne({
 				where: {
-					id: gifteds.getDataValue("lastProduct")
-				}
-			})
+					id: gifteds.getDataValue('lastProduct'),
+				},
+			});
 		}
 
 		let lastNoteId = await Note.findOne({
-			attributes: [
-				[sequelize.fn('max', sequelize.col('id')), 'max'],
-			],
+			attributes: [[sequelize.fn('max', sequelize.col('id')), 'max']],
 			where: {
-				event_id: eventId
-			}
-		})
+				event_id: eventId,
+			},
+		});
 
 		let lastNote = null;
 		if (lastNoteId) {
 			lastNote = await Note.findOne({
 				where: {
-					id: lastNoteId.getDataValue("max")
+					id: lastNoteId.getDataValue('max'),
 				},
-				include: ["user"]
-			})
+				include: ['user'],
+			});
 		}
 		return res.status(200).json({ gifteds, lastNoteId, lastNote, lastProduct });
 	} catch (err) {
@@ -110,7 +108,7 @@ exports.getGiftList = async (req, res, next) => {
 	try {
 		const gifts = await EventProduct.findAll({
 			where: { event_id: eventId },
-			include: ["product"]
+			include: ['product'],
 		});
 		if (!gifts || gifts.length == 0) {
 			const error = new HttpError(
@@ -133,7 +131,7 @@ exports.getGifteds = async (req, res, next) => {
 	try {
 		const gifts = await Gifted.findAll({
 			where: { event_id: eventId },
-			include: ["product"]
+			include: ['product'],
 		});
 		if (!gifts || gifts.length == 0) {
 			const error = new HttpError(
@@ -157,8 +155,11 @@ exports.giveGift = async (req, res, next) => {
 		product = await Product.findOne({ where: { id: product_id } });
 
 		const gift = await Gifted.create({
-			event_id, user_id, product_id, price: product.price
-		})
+			event_id,
+			user_id,
+			product_id,
+			price: product.price,
+		});
 		return res.status(200).json(gift);
 	} catch (err) {
 		console.error(err);
@@ -186,7 +187,7 @@ exports.create = async (req, res, next) => {
 		background_image,
 		mom_name,
 		dad_name,
-		products
+		products,
 	} = req.body;
 	const { userId } = req.params;
 
@@ -211,10 +212,7 @@ exports.create = async (req, res, next) => {
 	try {
 		const existed = await Event.findOne({ where: { user_id: userId } });
 		if (existed) {
-			const error = new HttpError(
-				'This user have a event',
-				400,
-			);
+			const error = new HttpError('This user have a event', 400);
 			return next(error);
 		}
 
@@ -232,7 +230,7 @@ exports.create = async (req, res, next) => {
 			url,
 			theme,
 			history_text,
-			invite_text
+			invite_text,
 		});
 
 		let baby_image_url = '';
@@ -241,19 +239,22 @@ exports.create = async (req, res, next) => {
 		let background_image_url = '';
 
 		if (baby_image) {
-			baby_image_url = await imageUpload(baby_image, 'baby-image-' + event.id)
+			baby_image_url = await imageUpload(baby_image, 'baby-image-' + event.id);
 		}
 
 		if (mom_image) {
-			mom_image_url = await imageUpload(mom_image, 'mom-image-' + event.id)
+			mom_image_url = await imageUpload(mom_image, 'mom-image-' + event.id);
 		}
 
 		if (dad_image) {
-			dad_image_url = await imageUpload(dad_image, 'dad-image-' + event.id)
+			dad_image_url = await imageUpload(dad_image, 'dad-image-' + event.id);
 		}
 
 		if (background_image) {
-			background_image_url = await imageUpload(background_image, 'background-image-' + event.id)
+			background_image_url = await imageUpload(
+				background_image,
+				'background-image-' + event.id,
+			);
 		}
 
 		event_with_images = await event.update({
@@ -261,12 +262,12 @@ exports.create = async (req, res, next) => {
 			mom_image_url,
 			dad_image_url,
 			background_image_url,
-		})
+		});
 
-		console.log("products", products);
+		console.log('products', products);
 		products.forEach(async (product) => {
 			product.event_id = event.id;
-			console.log("product ======== ", product);
+			console.log('product ======== ', product);
 			let ep = await EventProduct.create(product);
 			console.log(ep);
 		});
@@ -298,9 +299,16 @@ exports.getByUrl = async (req, res, next) => {
 	try {
 		const event = await Event.findOne({
 			where: { url: url },
-			include: [{
-				model: Note, as: "notes", include: ["user"]
-			}, "guests", "products", "gallery"]
+			include: [
+				{
+					model: Note,
+					as: 'notes',
+					include: ['user'],
+				},
+				'guests',
+				'products',
+				'gallery',
+			],
 		});
 		return res.status(200).json(event);
 	} catch (err) {
@@ -326,7 +334,7 @@ exports.edit = async (req, res, next) => {
 		baby_image,
 		mom_image,
 		dad_image,
-		background_image
+		background_image,
 	} = req.body;
 
 	const { eventId } = req.params;
@@ -348,24 +356,40 @@ exports.edit = async (req, res, next) => {
 	}
 
 	if (baby_image) {
-		event.baby_image_url = await imageUpload(baby_image, 'baby-image-' + event.id)
+		event.baby_image_url = await imageUpload(
+			baby_image,
+			'baby-image-' + event.id,
+		);
 	}
 
 	if (mom_image) {
-		event.mom_image_url = await imageUpload(mom_image, 'mom-image-' + event.id)
+		event.mom_image_url = await imageUpload(mom_image, 'mom-image-' + event.id);
 	}
 
 	if (dad_image) {
-		event.dad_image_url = await imageUpload(dad_image, 'dad-image-' + event.id)
+		event.dad_image_url = await imageUpload(dad_image, 'dad-image-' + event.id);
 	}
 
 	if (background_image) {
-		event.background_image_url = await imageUpload(background_image, 'background-image-' + event.id)
+		event.background_image_url = await imageUpload(
+			background_image,
+			'background-image-' + event.id,
+		);
 	}
 
 	try {
 		let updated = await event.update({
-			type, date, hour, url, phone, address, baby_name, baby_birthday, theme, history_text, invite_text
+			type,
+			date,
+			hour,
+			url,
+			phone,
+			address,
+			baby_name,
+			baby_birthday,
+			theme,
+			history_text,
+			invite_text,
 		});
 		return res.status(200).json({ message: 'Event edited!', event: updated });
 	} catch (err) {
@@ -376,9 +400,7 @@ exports.edit = async (req, res, next) => {
 };
 
 exports.saveProducts = async (req, res, next) => {
-	const {
-		events_products
-	} = req.body;
+	const { events_products } = req.body;
 
 	try {
 		events_products.forEach(async (e) => {
@@ -389,16 +411,34 @@ exports.saveProducts = async (req, res, next) => {
 					await event.destroy();
 				} else {
 					await event.update({
-						quantity: e.quantity
-					})
+						quantity: e.quantity,
+					});
 				}
 			}
-		})
+		});
 		return res.status(200).json({ message: 'Edited!' });
-
 	} catch (err) {
 		console.error(err);
 		const error = new HttpError('Unable to find any event - server error', 500);
+		return next(error);
+	}
+};
+
+exports.delete = async (req, res, next) => {
+	const { eventId } = req.params;
+
+	try {
+		const event = await Event.findOne({
+			where: {
+				id: eventId,
+			},
+		});
+
+		await event.destroy();
+		return res.status(200).send('Event deleted');
+	} catch (err) {
+		console.error(err);
+		const error = new HttpError('Server error!', 500);
 		return next(error);
 	}
 };
