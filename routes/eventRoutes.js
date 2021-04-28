@@ -19,5 +19,6 @@ router.get('/verify/:url', eventController.verifyUrl);
 router.post('/give-gift', eventController.giveGift);
 router.patch('/event-products', eventController.saveProducts);
 router.patch('/:eventId/edit', eventController.edit);
+router.delete('/:eventId', eventController.delete);
 
 module.exports = router;
