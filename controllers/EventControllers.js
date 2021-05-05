@@ -8,6 +8,7 @@ const Gifted = require('../models/Gifted');
 const Product = require('../models/Product');
 const Note = require('../models/Note');
 const EventProduct = require('../models/EventProduct');
+const ProductList = require('../models/ProductList');
 
 exports.index = async (req, res, next) => {
 	const { userId } = req.params;
@@ -15,7 +16,7 @@ exports.index = async (req, res, next) => {
 	try {
 		const events = await Event.findAll({
 			where: { user_id: userId },
-			include: ['products'],
+			include: ['product_list'],
 		});
 		if (!events) {
 			const error = new HttpError(
@@ -106,9 +107,9 @@ exports.getGiftList = async (req, res, next) => {
 	const { eventId } = req.params;
 
 	try {
-		const gifts = await EventProduct.findAll({
+		const gifts = await ProductList.findAll({
 			where: { event_id: eventId },
-			include: ['product'],
+			include: ['products'],
 		});
 		if (!gifts || gifts.length == 0) {
 			const error = new HttpError(
@@ -188,6 +189,7 @@ exports.create = async (req, res, next) => {
 		mom_name,
 		dad_name,
 		products,
+		product_list_name,
 	} = req.body;
 	const { userId } = req.params;
 
@@ -265,11 +267,15 @@ exports.create = async (req, res, next) => {
 		});
 
 		console.log('products', products);
+		const product_list = await ProductList.create({
+			name: product_list_name,
+			event_id: event.id,
+		});
 		products.forEach(async (product) => {
-			product.event_id = event.id;
+			product.product_list_id = product_list.id;
 			console.log('product ======== ', product);
-			let ep = await EventProduct.create(product);
-			console.log(ep);
+			let p = await Product.create(product);
+			console.log(p);
 		});
 
 		return res.status(200).json(event);

@@ -2,7 +2,7 @@
 
 module.exports = {
 	up: async (queryInterface, Sequelize) => {
-		await queryInterface.createTable('event_products', {
+		await queryInterface.createTable('gifteds', {
 			id: {
 				type: Sequelize.INTEGER,
 				primaryKey: true,
@@ -16,6 +16,10 @@ module.exports = {
 				onUpdate: 'CASCADE',
 				onDelete: 'CASCADE',
 			},
+			price: {
+				type: Sequelize.FLOAT,
+				allowNull: false,
+			},
 			product_id: {
 				type: Sequelize.INTEGER,
 				references: { model: 'products', key: 'id' },
@@ -23,13 +27,12 @@ module.exports = {
 				onUpdate: 'CASCADE',
 				onDelete: 'CASCADE',
 			},
-			quantity: {
-				type: Sequelize.INTEGER,
-				allowNull: true,
-			},
-			received: {
-				type: Sequelize.INTEGER,
-				allowNull: true,
+			user_id: {
+				type: Sequelize.UUID,
+				references: { model: 'users', key: 'id' },
+				allowNull: false,
+				onUpdate: 'CASCADE',
+				onDelete: 'CASCADE',
 			},
 			created_at: {
 				type: Sequelize.DATE,
@@ -43,6 +46,6 @@ module.exports = {
 	},
 
 	down: async (queryInterface, Sequelize) => {
-		await queryInterface.dropTable('event_products');
+		await queryInterface.dropTable('gifteds');
 	},
 };
