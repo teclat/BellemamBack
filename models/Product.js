@@ -10,7 +10,6 @@ class Product extends Model {
 				},
 				stock_quantity: {
 					type: DataTypes.STRING,
-					allowNull: false,
 				},
 				selected_quantity: {
 					type: DataTypes.STRING,
@@ -18,7 +17,6 @@ class Product extends Model {
 				},
 				slug: {
 					type: DataTypes.STRING,
-					allowNull: false,
 				},
 				permalink: {
 					type: DataTypes.STRING,
@@ -31,14 +29,13 @@ class Product extends Model {
 					type: DataTypes.STRING,
 				},
 				description: {
-					type: DataTypes.STRING,
+					type: DataTypes.STRING(1000),
 				},
 				short_description: {
-					type: DataTypes.STRING,
+					type: DataTypes.STRING(1000),
 				},
 				sku: {
 					type: DataTypes.STRING,
-					allowNull: false,
 				},
 				price: {
 					type: DataTypes.STRING,
