@@ -312,7 +312,7 @@ exports.getByUrl = async (req, res, next) => {
 					include: ['user'],
 				},
 				'guests',
-				'products',
+				// 'products',
 				'gallery',
 			],
 		});

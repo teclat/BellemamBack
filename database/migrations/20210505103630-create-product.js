@@ -15,7 +15,6 @@ module.exports = {
 			},
 			stock_quantity: {
 				type: Sequelize.STRING,
-				allowNull: false,
 			},
 			selected_quantity: {
 				type: Sequelize.STRING,
@@ -23,7 +22,6 @@ module.exports = {
 			},
 			slug: {
 				type: Sequelize.STRING,
-				allowNull: false,
 			},
 			permalink: {
 				type: Sequelize.STRING,
@@ -31,22 +29,18 @@ module.exports = {
 			},
 			purchased: {
 				type: Sequelize.BOOLEAN,
-				allowNull: false,
 			},
 			type: {
 				type: Sequelize.STRING,
-				allowNull: false,
 			},
 			description: {
-				type: Sequelize.STRING,
-				allowNull: false,
+				type: Sequelize.STRING(1000),
 			},
 			short_description: {
-				type: Sequelize.STRING,
+				type: Sequelize.STRING(1000),
 			},
 			sku: {
 				type: Sequelize.STRING,
-				allowNull: false,
 			},
 			price: {
 				type: Sequelize.STRING,
