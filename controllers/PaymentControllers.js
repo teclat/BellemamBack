@@ -1,16 +1,22 @@
-const Cielo = require('cielo');
+const axios = require('axios');
 const HttpError = require('../models/http-error');
 exports.credit = async (req, res, next) => {
 	const config = {
-		merchantId: process.env.MERCHANT_ID,
-		merchantKey: process.env.MERCHANT_KEY,
-		sandbox: true, // (default false)
-		debug: true, // default false
+		headers: {
+			merchantId: process.env.MERCHANT_ID,
+			merchantKey: process.env.MERCHANT_KEY,
+		},
 	};
 
-	const cielo = new Cielo.Cielo(config);
+	const sandboxConfig = {
+		headers: {
+			merchantId: process.env.MERCHANT_ID_SANDBOX,
+			merchantKey: process.env.MERCHANT_KEY_SANDBOX,
+		},
+	};
 
 	const {
+		isSandbox,
 		customerName,
 		merchantOrderId,
 		amount,
@@ -22,31 +28,33 @@ exports.credit = async (req, res, next) => {
 		installments,
 	} = req.body;
 
+	const sandboxOrder = {
+		customer: {
+			name: 'Comprador crédito',
+		},
+		merchantOrderId: '2014111703',
+		payment: {
+			amount: 1000, // R$10,00
+			creditCard: {
+				brand: 'VISA',
+				cardNumber: '0000.0000.0000.0001',
+				holder: 'Tecla T',
+				expirationDate: '12/2021',
+			},
+			installments: 1,
+			softDescriptor: 'Bellemam',
+			type: 'CreditCard',
+			capture: false,
+		},
+	};
+
 	const order = {
-		//Teste
-		// customer: {
-		// 	name: 'Comprador crédito',
-		// },
-		// merchantOrderId: '2014111703',
-		// payment: {
-		// 	amount: 1000, // R$10,00
-		// 	creditCard: {
-		// 		brand: 'VISA',
-		// 		cardNumber: '0000.0000.0000.0001',
-		// 		holder: 'Tecla T',
-		// 		expirationDate: '12/2021',
-		// 	},
-		// 	installments: 1,
-		// 	softDescriptor: 'Bellemam',
-		// 	type: 'CreditCard',
-		// 	capture: false,
-		// },
 		customer: {
 			name: customerName,
 		},
 		merchantOrderId: merchantOrderId,
 		payment: {
-			amount: amount, // Em centavos.
+			amount: amount, // In cents.
 			creditCard: {
 				brand: brand,
 				cardNumber: cardNumber,
@@ -61,12 +69,29 @@ exports.credit = async (req, res, next) => {
 	};
 
 	try {
-		const transaction = await cielo.creditCard.transaction(order);
-		console.log(transaction);
-		return res.status(200).json('Pagamento realizado com sucesso!');
+		let response;
+		if (isSandbox) {
+			response = await axios
+				.post(
+					'https://apisandbox.cieloecommerce.cielo.com.br/1/sales',
+					sandboxOrder,
+					sandboxConfig,
+				)
+				.then((response) => {
+					return response.data;
+				});
+		} else {
+			response = await axios
+				.post('https://api.cieloecommerce.cielo.com.br/1/sales', order, config)
+				.then((response) => {
+					return response.data;
+				});
+		}
+		console.log(response);
+		return res.status(200).json(response);
 	} catch (err) {
-		console.error(err.message);
-		const error = new HttpError('Erro ao realizar pagamento.', 500);
+		console.error(err);
+		const error = new HttpError('Erro ao realizar pagamento!', 500);
 		return next(error);
 	}
 };
