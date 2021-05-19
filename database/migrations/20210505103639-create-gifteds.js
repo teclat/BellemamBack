@@ -9,12 +9,16 @@ module.exports = {
 				autoIncrement: true,
 				allowNull: false,
 			},
-			event_id: {
+			product_list_id: {
 				type: Sequelize.INTEGER,
-				references: { model: 'events', key: 'id' },
+				references: { model: 'product_lists', key: 'id' },
 				allowNull: false,
 				onUpdate: 'CASCADE',
 				onDelete: 'CASCADE',
+			},
+			quantity: {
+				type: Sequelize.FLOAT,
+				allowNull: false,
 			},
 			price: {
 				type: Sequelize.FLOAT,

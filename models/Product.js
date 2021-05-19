@@ -29,10 +29,10 @@ class Product extends Model {
 					type: DataTypes.STRING,
 				},
 				description: {
-					type: DataTypes.STRING(1000),
+					type: DataTypes.TEXT,
 				},
 				short_description: {
-					type: DataTypes.STRING(1000),
+					type: DataTypes.TEXT,
 				},
 				sku: {
 					type: DataTypes.STRING,
