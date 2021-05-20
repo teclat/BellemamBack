@@ -57,24 +57,31 @@ exports.dashboard = async (req, res, next) => {
 	const { eventId } = req.params;
 
 	try {
+		const productList = await ProductList.findOne({
+			where: { event_id: eventId },
+		});
 		let gifteds = await Gifted.findOne({
 			attributes: [
-				'event_id',
+				'product_list_id',
 				[sequelize.fn('sum', sequelize.col('price')), 'total'],
-				[sequelize.fn('count', sequelize.col('id')), 'qtd'],
-				[sequelize.fn('max', sequelize.col('product_id')), 'lastProduct'],
+				[sequelize.fn('sum', sequelize.col('quantity')), 'qtd'],
 			],
-			group: ['event_id'],
+			group: ['product_list_id'],
 			where: {
-				event_id: eventId,
+				product_list_id: productList.id,
 			},
 		});
-
 		let lastProduct = null;
-		if (gifteds) {
+		lastProduct = await Gifted.findOne({
+			attributes: [['product_id', 'lastProduct']],
+			group: ['product_id'],
+			order: [[sequelize.fn('max', sequelize.col('updated_at')), 'DESC']],
+			limit: 1,
+		});
+		if (lastProduct) {
 			lastProduct = await Product.findOne({
 				where: {
-					id: gifteds.getDataValue('lastProduct'),
+					id: lastProduct.getDataValue('lastProduct'),
 				},
 			});
 		}
@@ -130,8 +137,11 @@ exports.getGifteds = async (req, res, next) => {
 	const { eventId } = req.params;
 
 	try {
-		const gifts = await Gifted.findAll({
+		const productList = await ProductList.findOne({
 			where: { event_id: eventId },
+		});
+		const gifts = await Gifted.findAll({
+			where: { product_list_id: productList.id },
 			include: ['product'],
 		});
 		if (!gifts || gifts.length == 0) {
@@ -150,18 +160,59 @@ exports.getGifteds = async (req, res, next) => {
 };
 
 exports.giveGift = async (req, res, next) => {
-	const { event_id, user_id, product_id } = req.body;
+	const { user_id, product_list_id, products } = req.body;
 
 	try {
-		product = await Product.findOne({ where: { id: product_id } });
-
-		const gift = await Gifted.create({
-			event_id,
-			user_id,
-			product_id,
-			price: product.price,
-		});
-		return res.status(200).json(gift);
+		const productList = [];
+		const gifts = [];
+		let quantity = -1;
+		let price = 0;
+		if (products !== undefined && products !== null && products.length > 1) {
+			for (const product of products) {
+				let p = await Product.findOne({
+					where: { product_list_id: product_list_id, name: product.name },
+				});
+				productList.push(p);
+			}
+		} else if (products !== undefined && products !== null) {
+			let p = await Product.findOne({
+				where: { product_list_id: product_list_id, name: products[0].name },
+			});
+			productList.push(p);
+		}
+		for (const product of productList) {
+			const filteredProducts = products.filter((p) => {
+				return p.name === product.name;
+			});
+			if (filteredProducts[0] !== undefined && filteredProducts[0] !== null) {
+				quantity = filteredProducts[0].count;
+				price = filteredProducts[0].price;
+			} else {
+				const err = 'Invalid quantity or price';
+				throw err;
+			}
+			let gift = await Gifted.create({
+				quantity: quantity,
+				price: price,
+				user_id: user_id,
+				product_list_id: product_list_id,
+				product_id: product.id,
+			});
+			const [numberOfAffectedRows, affectedRows] = await Product.update(
+				{
+					selected_quantity: product.selected_quantity - quantity,
+				},
+				{
+					where: { product_list_id: product_list_id, name: product.name },
+					returning: true,
+					plain: true,
+				},
+			);
+			console.log(numberOfAffectedRows);
+			console.log(affectedRows);
+			gifts.push(gift);
+		}
+		return res.status(200).json(gifts);
 	} catch (err) {
 		console.error(err);
 		const error = new HttpError('Server error!', 500);
@@ -273,6 +324,7 @@ exports.create = async (req, res, next) => {
 		});
 		products.forEach(async (product) => {
 			product.product_list_id = product_list.id;
+			delete product.id;
 			console.log('product ======== ', product);
 			let p = await Product.create(product);
 			console.log(p);
