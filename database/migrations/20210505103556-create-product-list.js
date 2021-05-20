@@ -2,7 +2,7 @@
 
 module.exports = {
 	up: async (queryInterface, Sequelize) => {
-		await queryInterface.createTable('products', {
+		await queryInterface.createTable('product_lists', {
 			id: {
 				type: Sequelize.INTEGER,
 				primaryKey: true,
@@ -13,21 +13,12 @@ module.exports = {
 				type: Sequelize.STRING,
 				allowNull: false,
 			},
-			description: {
-				type: Sequelize.STRING,
+			event_id: {
+				type: Sequelize.INTEGER,
+				references: { model: 'events', key: 'id' },
 				allowNull: false,
-			},
-			price: {
-				type: Sequelize.FLOAT,
-				allowNull: false,
-			},
-			image_url: {
-				type: Sequelize.STRING,
-				allowNull: true,
-			},
-			available: {
-				type: Sequelize.BOOLEAN,
-				allowNull: false,
+				onUpdate: 'CASCADE',
+				onDelete: 'CASCADE',
 			},
 			created_at: {
 				type: Sequelize.DATE,
@@ -41,6 +32,6 @@ module.exports = {
 	},
 
 	down: async (queryInterface, Sequelize) => {
-		await queryInterface.dropTable('products');
+		await queryInterface.dropTable('product_lists');
 	},
 };

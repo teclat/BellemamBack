@@ -10,6 +10,7 @@ const Note = require('../models/Note');
 const Gifted = require('../models/Gifted');
 const CustomWebsite = require('../models/CustomWebsite');
 const Gallery = require('../models/Gallery');
+const ProductList = require('../models/ProductList');
 
 const connection = new Sequelize(dbconfig);
 
@@ -23,6 +24,8 @@ Gifted.init(connection);
 CustomWebsite.init(connection);
 Gallery.init(connection);
 
+ProductList.init(connection);
+
 User.associate(connection.models);
 Event.associate(connection.models);
 Product.associate(connection.models);
@@ -32,5 +35,7 @@ Note.associate(connection.models);
 Gifted.associate(connection.models);
 CustomWebsite.associate(connection.models);
 Gallery.associate(connection.models);
+
+ProductList.associate(connection.models);
 
 module.exports = connection;

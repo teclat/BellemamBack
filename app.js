@@ -8,6 +8,7 @@ const productRoutes = require('./routes/productRoutes');
 const noteRoutes = require('./routes/noteRoutes');
 const customRoutes = require('./routes/customRoutes');
 const galleryRoutes = require('./routes/galleryRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
 
 require('./database');
 
@@ -24,6 +25,7 @@ app.use('/api/gallery', galleryRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/notes', noteRoutes);
 app.use('/api/custom', customRoutes);
+app.use('/api/payment', paymentRoutes);
 
 //error middleware
 app.use((error, req, res, next) => {

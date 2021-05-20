@@ -36,7 +36,7 @@ class Event extends Model {
 				},
 				url: {
 					type: DataTypes.STRING,
-					allowNull: true,
+					allowNull: false,
 				},
 				baby_birthday: {
 					type: DataTypes.DATE,
@@ -90,15 +90,10 @@ class Event extends Model {
 			foreignKey: 'user_id',
 			as: 'user',
 		});
-		this.belongsToMany(models.Product, {
-			foreignKey: 'event_id',
-			through: 'event_products',
-			as: 'products',
-		});
 		this.belongsToMany(models.User, {
 			foreignKey: 'event_id',
 			through: 'event_guests',
-			as: 'guests'
+			as: 'guests',
 		});
 		this.hasMany(models.Note, {
 			foreignKey: 'event_id',
@@ -107,6 +102,10 @@ class Event extends Model {
 		this.hasMany(models.Gallery, {
 			foreignKey: 'event_id',
 			as: 'gallery',
+		});
+		this.hasOne(models.ProductList, {
+			foreignKey: 'event_id',
+			as: 'product_list',
 		});
 	}
 }
