@@ -12,7 +12,25 @@ const CustomWebsite = require('../models/CustomWebsite');
 const Gallery = require('../models/Gallery');
 const ProductList = require('../models/ProductList');
 
-const connection = new Sequelize(dbconfig);
+const connection = new Sequelize(
+	process.env.NODE_ENV === 'test'
+		? process.env.TEST_DATABASE_URL
+		: process.env.DATABASE_URL,
+	{
+		define: {
+			timestamps: true,
+			underscored: true,
+		},
+		dialectOptions: {
+			ssl: {
+				require: true,
+				rejectUnauthorized: false,
+			},
+		},
+	},
+);
+
+// const connection = new Sequelize(dbconfig);
 
 User.init(connection);
 Event.init(connection);
