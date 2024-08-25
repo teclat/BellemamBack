@@ -22,10 +22,7 @@ const connection = new Sequelize(
 			underscored: true,
 		},
 		dialectOptions: {
-			ssl: {
-				require: true,
-				rejectUnauthorized: false,
-			},
+			ssl: false,
 		},
 	},
 );
