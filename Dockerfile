@@ -10,8 +10,6 @@ COPY . /usr/src/app
 
 RUN yarn install
 
-RUN yarn sequelize db:migrate
-
 EXPOSE 8080
 
 CMD ["yarn", "start"]
