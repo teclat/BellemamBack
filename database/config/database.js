@@ -1,8 +1,8 @@
 module.exports = {
 	dialect: 'postgres',
-	host: 'localhost',
+	host: 'srv-captain--j57453ees2',
 	username: 'postgres',
-	password: '21121995',
+	password: '00c9f3396e895f3b',
 	//password: 'password',
 	database: 'bellemam',
 	define: {

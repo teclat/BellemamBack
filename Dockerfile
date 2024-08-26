@@ -4,12 +4,14 @@ ENV TZ "America/Sao_Paulo"
 RUN apk update && apk add tzdata
 
 WORKDIR /usr/src/app
-COPY . /usr/src/app
 
 COPY ./package.json /usr/src/app/package.json
+COPY . /usr/src/app
 
 RUN yarn install
 
-EXPOSE 80
+RUN yarn sequelize db:migrate
+
+EXPOSE 8080
 
 CMD ["yarn", "start"]
