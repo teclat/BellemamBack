@@ -1,6 +1,6 @@
 module.exports = {
 	dialect: 'postgres',
-	host: 'srv-captain--j57453ees2',
+	host: 'http://srv-captain--j57453ees2',
 	username: 'postgres',
 	password: '00c9f3396e895f3b',
 	//password: 'password',
